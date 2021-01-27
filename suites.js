@@ -21,6 +21,7 @@ suites.push(...withAlerts(suiteTmMaxWorkers))
 suites.push(...withAlerts(suiteTmPollInterval))
 suites.push(...withAlerts(suiteVersions))
 suites.push(suiteAlerts())
+suites.push(testSuite())
 
 /** @type { ( fn: (alerts: number) => Suite) => Suite[] } */
 function withAlerts(fn) {
@@ -142,6 +143,26 @@ function suiteAlerts() {
   return {
     id: `number-of-alerts`,
     description: `vary scenarios by number of alerts`,
+    scenarios,
+  }
+}
+
+/** @type { () => Suite } */
+function testSuite() {
+  const scenarios = [{
+      name: `test-suite`,
+      alertInterval: '1m',
+      alerts: 100,
+      esSpec: '1 x 8 GB',
+      kbSpec: '2 x 8 GB',
+      tmMaxWorkers: 10,
+      tmPollInterval: 3000,
+      version: Version,
+    }]
+
+  return {
+    id: `test-suite`,
+    description: `just one scenario`,
     scenarios,
   }
 }
