@@ -1,8 +1,9 @@
 pipeline {
+    agent { none }
     stages {
-        stage('run test') {
+        stage('build') {
             steps {
-                sh 'kbn-alert-load'
+                sh 'npm --version'
             }
         }
     }
