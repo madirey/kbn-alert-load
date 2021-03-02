@@ -6,5 +6,10 @@ pipeline {
                 sh 'kbn-alert-load run indicator-rules-index-size'
             }
         }
+        stage('save artifacts') {
+            steps {
+                archiveArtifacts artifacts: '*.html'
+            }
+        }
     }
 }
