@@ -1,10 +1,9 @@
 pipeline {
     agent any
     stages {
-        stage('build') {
+        stage('Run tests') {
             steps {
-                sh 'npm --version'
-                sh 'kbn-alert-load'
+                sh 'kbn-alert-load run indicator-rules-index-size'
             }
         }
     }
