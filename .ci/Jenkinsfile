@@ -1,5 +1,8 @@
+#!/usr/bin/env groovy
+library 'kibana-pipeline-library'
+
 pipeline {
-    agent any
+    agent { label 'docker && ubuntu-tests-l'}
     stages {
         stage('Run tests') {
             steps {
