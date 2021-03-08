@@ -2,7 +2,7 @@
 library 'kibana-pipeline-library'
 
 pipeline {
-    agent { label 'docker && ubuntu-tests-l'}
+    agent { image 'node:14-alpine'}
     stages {
         stage('Run tests') {
             steps {
