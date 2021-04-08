@@ -11,9 +11,14 @@ export interface Scenario {
   tmPollInterval: number
   tmMaxWorkers: number
   ruleType?: string
-  trafficCount?: number
+  trafficRate?: number
   searchableSnapshot?: boolean
-  indicatorCount? : number
+  indicatorCount?: number
+  indicatorIndexSize? : number
+  indicatorFieldCount?: number
+  topology? : string
+  itemsPerSearch?: number,
+  concurrentSearches?: number
 }
 
 export interface Suite {
