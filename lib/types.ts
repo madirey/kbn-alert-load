@@ -16,7 +16,6 @@ export interface Scenario {
   indicatorCount?: number
   indicatorIndexSize? : number
   indicatorFieldCount?: number
-  topology? : string
   itemsPerSearch?: number,
   concurrentSearches?: number
 }
