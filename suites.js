@@ -14,10 +14,17 @@ const Versions = [
 const Version = Versions[0]
 
 const RulesCountList = [200, 400, 600, 1000]
+const indicatorIndexSizes = [
+  10000,
+  50000,
+  100000,
+  500000,
+]
 
 /** @type { Suite[] } */
 const suites = module.exports = []
 
+suites.push(...withArrayMap(indicatorIndexSizes, suiteIndicatorIndexSize))
 suites.push(...withArrayMap(RulesCountList, suiteIndicatorItemsPerSearch))
 suites.push(suiteIndicatorConcurrentSearches(400))
 
@@ -75,13 +82,38 @@ function suiteIndicatorConcurrentSearches(alerts) {
       searchableSnapshot: false,
       indicatorIndexSize: 50000,
       concurrentSearches,
-      itemsPerSearch: 2000
+      itemsPerSearch: 1000
     }
   })
 
   return {
     id: `indicator-concurrent-searches-${alerts}`,
     description: `vary scenarios by concurrent_searches for indicator rule`,
+    scenarios,
+  }
+}
+
+/** @type { () => Suite } */
+function suiteIndicatorIndexSize(indicatorIndexSize) {
+  const scenarios = [{
+    name: `indicator index with ${indicatorIndexSize} indicators`,
+    alertInterval: '1m',
+    alerts: 800,
+    esSpec: '2 x 64 GB',
+    kbSpec: '16 x 8 GB',
+    tmMaxWorkers: 10,
+    tmPollInterval: 3000,
+    version: Version,
+    ruleType: 'indicator',
+    indicatorCount: 10,
+    trafficRate: 1000,
+    searchableSnapshot: false,
+    indicatorIndexSize
+  }]
+
+  return {
+    id: `indicator-rules-indicator-index-size-${indicatorIndexSize}`,
+    description: `vary scenarios by size of indicator index for indicator rule`,
     scenarios,
   }
 }
