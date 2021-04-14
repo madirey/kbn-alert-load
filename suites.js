@@ -26,7 +26,8 @@ const suites = module.exports = []
 
 suites.push(...withArrayMap(indicatorIndexSizes, suiteIndicatorIndexSize))
 suites.push(...withArrayMap(RulesCountList, suiteIndicatorItemsPerSearch))
-suites.push(suiteIndicatorConcurrentSearches(400))
+suites.push(suiteIndicatorConcurrentSearches(200))
+suites.push(testSuite())
 
 /** @type { ( fn: (clusterSpecs: [], index: number) => Suite) => Suite[] } */
 function withArrayMap(arrayToMap, fn) {
@@ -114,6 +115,30 @@ function suiteIndicatorIndexSize(indicatorIndexSize) {
   return {
     id: `indicator-rules-indicator-index-size-${indicatorIndexSize}`,
     description: `vary scenarios by size of indicator index for indicator rule`,
+    scenarios,
+  }
+}
+
+/** @type { (alerts: number) => Suite } */
+function testSuite() {
+  const scenarios = [{
+    name: `Simple test suite`,
+    alertInterval: '1m',
+    alerts: 50,
+    esSpec: '1 x 8 GB',
+    kbSpec: '2 x 8 GB',
+    tmMaxWorkers: 10,
+    tmPollInterval: 3000,
+    version: Version,
+    ruleType: 'indicator',
+    indicatorCount: 20,
+    searchableSnapshot: false,
+    trafficRate: 1000,
+  }]
+
+  return {
+    id: `simple-test`,
+    description: `simple scenario for testing`,
     scenarios,
   }
 }
