@@ -16,7 +16,6 @@ TBD; run `kbn-alert-load` with no parameters for help.
 - create an API key at the cloud site for use with `ecctl`
 - install `ecctl` - https://www.elastic.co/guide/en/ecctl/current/ecctl-installing.html
 - create an initial config for `ecctl` with `ecctl init`, providing your API key 
-    - Currently using GCP due to hard coding the deployment_template to "gcp-io-optimized"
     - Staging can be used by updating ~/.ecctl/config.json
     ```
     {
