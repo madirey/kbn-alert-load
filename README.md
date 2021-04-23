@@ -40,6 +40,7 @@ TBD; run `kbn-alert-load` with no parameters for help.
 
 ## setup traffic generator
 Currently background traffic is created by a python script triggered using ssh.  Pointing to the traffic generator can be done using environment variables or parameters when running kbn-alert-load 
+If the traffic generator is not configured the test will run with no background traffic.
 
 Currently a traffic generator is set up at
     
@@ -65,10 +66,28 @@ List the available test suites
     
     kbn-alert-load ls
     
+Verbosely
+    
+    kbn-alert-load lsv
+    
 Specify the test suite with run
 
-    kbn-alert-load run simple-test
+    kbn-alert-load run create-indicator-rules
     
+
+## running against an existing deployment
+tests can be run against an existing cluster by passing arguments for elasticsearch and kibana 
+
+    kbn-alert-load run create-indicator-rules -e ESURL -k KBURL  
+    
+By default the first scenario of a suite will be selected but other scenarios in a suite can be selected
+
+    kbn-alert-load run create-indicator-rules -e ESURL -k KBURL -s 3 
+
+Tests will currently add additional rules and entries to the indicator match index when run so if running against an existing deployment with rules and threat index already created the test suite `run-existing-test` does not create additional rules or entries and can be run to monitor an existing deployment. 
+
+    kbn-alert-load run run-existing-test -e ESURL -k KBURL  
+
 ## Specifying new test suites
 Test suites are defined under suites.js
 
