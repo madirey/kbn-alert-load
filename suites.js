@@ -128,7 +128,7 @@ function createRulesSuite(rulesCount=50, indicatorIndexSize=10000) {
     name: `${rulesCount} rules ${indicatorIndexSize} indicator index`,
     alertInterval: '1m',
     alerts: rulesCount,
-    esSpec: '1 x 8 GB',
+    esSpec: '1 x 64 GB',
     kbSpec: '2 x 8 GB',
     tmMaxWorkers: 10,
     tmPollInterval: 3000,

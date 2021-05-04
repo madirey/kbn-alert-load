@@ -76,7 +76,7 @@ Specify the test suite with run
     
 
 ## running against an existing deployment
-tests can be run against an existing cluster by passing arguments for elasticsearch and kibana 
+tests can be run against an existing cluster by passing arguments for elasticsearch and kibana.  To initialize the test existing rules are deleting and the index threat-index is deleted.
 
     kbn-alert-load run create-indicator-rules -e ESURL -k KBURL  
     
@@ -84,9 +84,6 @@ By default the first scenario of a suite will be selected but other scenarios in
 
     kbn-alert-load run create-indicator-rules -e ESURL -k KBURL -s 3 
 
-Tests will currently add additional rules and entries to the indicator match index when run so if running against an existing deployment with rules and threat index already created the test suite `run-existing-test` does not create additional rules or entries and can be run to monitor an existing deployment. 
-
-    kbn-alert-load run run-existing-test -e ESURL -k KBURL  
 
 ## Specifying new test suites
 Test suites are defined under suites.js
