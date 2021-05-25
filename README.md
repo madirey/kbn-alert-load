@@ -16,6 +16,7 @@ TBD; run `kbn-alert-load` with no parameters for help.
 - create an API key at the cloud site for use with `ecctl`
 - install `ecctl` - https://www.elastic.co/guide/en/ecctl/current/ecctl-installing.html
 - create an initial config for `ecctl` with `ecctl init`, providing your API key 
+    - When running against Cloud it is possible to run into provisioning limitations on cluster size 
     - Staging can be used by updating ~/.ecctl/config.json
     ```
     {
@@ -54,7 +55,7 @@ The pem file is located here https://p.elstc.co/paste/K1xYee+5#g8U8YZb1QZ0b6pf0a
 
 Specify the traffic generator with the parameters
     
-    kbn-alert-load run simple-test -G ubuntu@ec2-3-238-23-222.compute-1.amazonaws.com -I identity_file.pem
+    kbn-alert-load run create-indicator-rules -G ubuntu@ec2-3-238-23-222.compute-1.amazonaws.com -I identity_file.pem
 
 Use environment variables to specify 
     
@@ -66,14 +67,30 @@ List the available test suites
     
     kbn-alert-load ls
     
-Verbosely
-    
-    kbn-alert-load lsv
-    
 Specify the test suite with run
 
     kbn-alert-load run create-indicator-rules
     
+Specify the length of the test suite with -M for minutes.  By default the length of the test is 10 minutes.
+    
+    kbn-alert-load run -M 30 create-indicator-rules
+
+When running a test suite the against the staging ESS it may take more time for the staging cloud to provision enough backend resources to run the test than the timeout to wait for the deployment to be healthy.  In the case this happens cleanup to the existing deployments and try again:
+
+    kbn-alert-load rmdall
+
+Several test suites are batched in the runSuites.sh script to run for 30 minutes which are:
+
+    indicator-index-50000-es-2x64GB-kb-16x8GB-rules-100,200,300 
+    indicator-index-50000-es-2x64GB-kb-16x8GB-rules-400,600,800 
+    indicator-index-100000-es-2x64GB-kb-16x8GB-rules-100,200,300
+    indicator-index-250000-es-2x64GB-kb-16x8GB-rules-25,50,75   
+    indicator-index-250000-es-2x64GB-kb-16x8GB-rules-100,200,300
+    indicator-index-50000-es-4x64GB-kb-16x8GB-rules-400,600,800 
+    indicator-index-100000-es-4x64GB-kb-16x8GB-rules-100,200,300
+    indicator-index-100000-es-4x64GB-kb-16x8GB-rules-400,600,800
+    indicator-index-250000-es-4x64GB-kb-16x8GB-rules-25,50,75   
+    indicator-index-250000-es-4x64GB-kb-16x8GB-rules-100,200,300
 
 ## running against an existing deployment
 tests can be run against an existing cluster by passing arguments for elasticsearch and kibana.  To initialize the test existing rules are deleting and the index threat-index is deleted.

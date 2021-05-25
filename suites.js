@@ -13,21 +13,31 @@ const Versions = [
 ]
 const Version = Versions[0]
 
-// const RulesCountList = [200, 400, 600, 1000]
-const KbSpec = '8 x 8 GB'
-const EsSpec = '2 x 64 GB'
-const TrafficRate = 100
+const rulesCounts_25_50_75 = [25, 50, 75]
+const rulesCounts_100_200_300 = [100, 200, 300]
+const rulesCounts_400_600_800 = [400, 600, 800]
+const defaultKbSpec = '8 x 8 GB'
+const defaultEsSpec = '2 x 64 GB'
+const defaultTrafficRate = 100
 
 /** @type { Suite[] } */
 const suites = module.exports = []
 
 // suites.push(...withArrayMap(RulesCountList, suiteIndicatorIndexSize))
 // suites.push(...withArrayMap(RulesCountList, suiteIndicatorItemsPerSearch))
-suites.push(suiteIndicatorIndexSize(200))
+suites.push(suiteIndicatorIndexSize(50000, '2 x 64 GB', '16 x 8 GB', rulesCounts_100_200_300))
+suites.push(suiteIndicatorIndexSize(50000, '2 x 64 GB', '16 x 8 GB', rulesCounts_400_600_800))
+suites.push(suiteIndicatorIndexSize(100000, '2 x 64 GB', '16 x 8 GB', rulesCounts_100_200_300))
+suites.push(suiteIndicatorIndexSize(250000, '2 x 64 GB', '16 x 8 GB', rulesCounts_25_50_75))
+suites.push(suiteIndicatorIndexSize(250000, '2 x 64 GB', '16 x 8 GB', rulesCounts_100_200_300))
+suites.push(suiteIndicatorIndexSize(50000, '4 x 64 GB', '16 x 8 GB', rulesCounts_400_600_800))
+suites.push(suiteIndicatorIndexSize(100000, '4 x 64 GB', '16 x 8 GB', rulesCounts_100_200_300))
+suites.push(suiteIndicatorIndexSize(100000, '4 x 64 GB', '16 x 8 GB', rulesCounts_400_600_800))
+suites.push(suiteIndicatorIndexSize(250000, '4 x 64 GB', '16 x 8 GB', rulesCounts_25_50_75))
+suites.push(suiteIndicatorIndexSize(250000, '4 x 64 GB', '16 x 8 GB', rulesCounts_100_200_300))
 suites.push(suiteIndicatorItemsPerSearch(200))
 suites.push(suiteIndicatorConcurrentSearches(200))
 suites.push(createRulesSuite())
-suites.push(runExistingSuite())
 
 /** @type { ( fn: (clusterSpecs: [], index: number) => Suite) => Suite[] } */
 function withArrayMap(arrayToMap, fn) {
@@ -43,14 +53,14 @@ function suiteIndicatorItemsPerSearch(rulesCount) {
       name: `indicator rule ${itemsPerSearch} items per search`,
       alertInterval: '1m',
       alerts: rulesCount,
-      esSpec: EsSpec,
-      kbSpec: KbSpec,
+      esSpec: defaultEsSpec,
+      kbSpec: defaultKbSpec,
       tmMaxWorkers: 10,
       tmPollInterval: 3000,
       version: Version,
       ruleType: 'indicator',
       indicatorCount: 1,
-      trafficRate: TrafficRate,
+      trafficRate: defaultTrafficRate,
       searchableSnapshot: false,
       indicatorIndexSize: 50000,
       itemsPerSearch
@@ -72,14 +82,14 @@ function suiteIndicatorConcurrentSearches(rulesCount) {
       name: `indicator rule ${concurrentSearches} concurrent searches`,
       alertInterval: '1m',
       alerts: rulesCount,
-      esSpec: EsSpec,
-      kbSpec: KbSpec,
+      esSpec: defaultEsSpec,
+      kbSpec: '8 x 8 GB',
       tmMaxWorkers: 10,
       tmPollInterval: 3000,
       version: Version,
       ruleType: 'indicator',
       indicatorCount: 1,
-      trafficRate: TrafficRate,
+      trafficRate: defaultTrafficRate,
       searchableSnapshot: false,
       indicatorIndexSize: 50000,
       concurrentSearches,
@@ -95,28 +105,27 @@ function suiteIndicatorConcurrentSearches(rulesCount) {
 }
 
 /** @type { () => Suite } */
-function suiteIndicatorIndexSize(rulesCount) {
-  const indicatorIndexSizes = [10000, 50000, 100000, 500000]
-  const scenarios = indicatorIndexSizes.map((indicatorIndexSize) => {
+function suiteIndicatorIndexSize(indicatorIndexSize, esSize, kbSize, rulesCounts) {
+  const scenarios = rulesCounts.map((rulesCount) => {
     return {
-      name: `indicator index with ${indicatorIndexSize} indicators`,
+      name: `${indicatorIndexSize} indicator index ${rulesCount} rules`,
       alertInterval: '1m',
       alerts: rulesCount,
-      esSpec: EsSpec,
-      kbSpec: KbSpec,
+      esSpec: esSize,
+      kbSpec: kbSize,
       tmMaxWorkers: 10,
       tmPollInterval: 3000,
       version: Version,
       ruleType: 'indicator',
       indicatorCount: 1,
-      trafficRate: TrafficRate,
+      trafficRate: defaultTrafficRate,
       searchableSnapshot: false,
       indicatorIndexSize
     }
   })
 
   return {
-    id: `indicator-rules-indicator-index-size-${rulesCount}`,
+    id: `indicator-index-${indicatorIndexSize}-es-${esSize.replace(/\s+/g, '')}-kb-${kbSize.replace(/\s+/g, '')}-rules-${rulesCounts}`,
     description: `vary scenarios by size of indicator index for indicator rule`,
     scenarios,
   }
@@ -145,33 +154,6 @@ function createRulesSuite(rulesCount=50, indicatorIndexSize=10000) {
   return {
     id: `create-indicator-rules`,
     description: `basic test scenario`,
-    scenarios,
-  }
-}
-
-/** @type { (alerts: number) => Suite } */
-function runExistingSuite() {
-  const scenarios = [{
-    name: `Running existing test`,
-    alertInterval: '1m',
-    alerts: 0,
-    esSpec: EsSpec,
-    kbSpec: KbSpec,
-    tmMaxWorkers: 10,
-    tmPollInterval: 3000,
-    version: Version,
-    ruleType: 'indicator',
-    indicatorCount: 1,
-    searchableSnapshot: false,
-    // trafficRate: 1000,
-    indicatorIndexSize: 0,
-    // concurrentSearches: 1,
-    // itemsPerSearch: 10000,
-  }]
-
-  return {
-    id: `run-existing-test`,
-    description: `creates no rules or additional documents in indicator index to run against existing cluster`,
     scenarios,
   }
 }
