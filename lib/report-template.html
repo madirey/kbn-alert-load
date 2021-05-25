@@ -62,8 +62,8 @@
   -->
 
   <div class="viz" id="vis-executions-per-minute"></div>
-  <div class="viz" id="vis-execution-failures-per-minute"></div>
   <div class="viz" id="vis-execution-time"></div>
+  <div class="viz" id="vis-execution-failures-per-minute"></div>
   <div class="viz" id="vis-time-between-alert-executions"></div>
   <div class="viz" id="vis-kb-status"></div>
   <div class="viz" id="vis-es-status"></div>
@@ -78,7 +78,7 @@
 
 <script>
   'use strict'
-  const { eventLog, kbStatus, KbTaskManager, esStatus, suite, deployments } = getAllData()
+  const { eventLog, kbStatus, KbTaskManager, esStatus, suite, deployments, ruleStatus } = getAllData()
   const chartWidth = 200
   const colors = [
     '#00BFB3',
@@ -90,7 +90,7 @@
   document.getElementById('var-suite').innerHTML = suite.id
   document.getElementById('var-description').innerHTML = suite.description
   document.getElementById('table-shared-settings').innerHTML = getSharedSettings()
-  // document.getElementById('table-scenario-settings').innerHTML = getScenarioSetttings()
+  // document.getElementById('table-scenario-settings').innerHTML = getScenarioSettings()
 
   const earliestDate = Date.parse(eventLog[0].date)
 
@@ -1034,6 +1034,8 @@
       KbTaskManager: ["%KbTaskManager%"],
       /** @type { any[] } */
       esStatus: ["%EsStatus%"],
+      /** @type { any[] } */
+      ruleStatus: ["%RuleStatus%"],
     }
     // data-end
 

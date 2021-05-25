@@ -1,0 +1,20 @@
+#!/usr/bin/env groovy
+library 'kibana-pipeline-library'
+
+pipeline {
+    agent {
+        docker { image 'node:14-alpine' }
+    }
+    stages {
+        stage('Run tests') {
+            steps {
+                sh 'kbn-alert-load run indicator-rules-index-size'
+            }
+        }
+        stage('save artifacts') {
+            steps {
+                archiveArtifacts artifacts: '*.html'
+            }
+        }
+    }
+}
