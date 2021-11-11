@@ -20,6 +20,33 @@ const defaultKbSpec = '8 x 8 GB'
 const defaultEsSpec = '2 x 64 GB'
 const defaultTrafficRate = 100
 
+const imBenchmarkSuites = [
+  {
+    indicatorIndexSize: 100,
+  },
+  {
+    indicatorIndexSize: 9000,
+  },
+  {
+    rulesCount: 100,
+  },
+  {
+    rulesCount: 1000,
+  },
+  {
+    alertInterval: 10,
+  },
+  {
+    alertInterval: 30,
+  },
+  {
+    indicatorCount: 10,
+  },
+  {
+    indicatorCount: 100,
+  },
+];
+
 /** @type { Suite[] } */
 const suites = module.exports = []
 
@@ -38,6 +65,9 @@ suites.push(suiteIndicatorIndexSize(250000, '4 x 64 GB', '16 x 8 GB', rulesCount
 suites.push(suiteIndicatorItemsPerSearch(200))
 suites.push(suiteIndicatorConcurrentSearches(200))
 suites.push(createRulesSuite())
+suites.push(createIMruleSuite())
+
+imBenchmarkSuites.forEach(suite => suites.push(createIMruleSuite(suite)))
 
 /** @type { ( fn: (clusterSpecs: [], index: number) => Suite) => Suite[] } */
 function withArrayMap(arrayToMap, fn) {
@@ -132,7 +162,7 @@ function suiteIndicatorIndexSize(indicatorIndexSize, esSize, kbSize, rulesCounts
 }
 
 /** @type { (alerts: number) => Suite } */
-function createRulesSuite(rulesCount=50, indicatorIndexSize=10000) {
+function createRulesSuite(rulesCount=10, indicatorIndexSize=4000) {
   const scenarios = [{
     name: `${rulesCount} rules ${indicatorIndexSize} indicator index`,
     alertInterval: '1m',
@@ -157,3 +187,36 @@ function createRulesSuite(rulesCount=50, indicatorIndexSize=10000) {
     scenarios,
   }
 }
+
+
+function createIMruleSuite({
+  rulesCount = 10,
+  indicatorIndexSize = 1000,
+  alertInterval = 1,
+  indicatorCount = 1,
+} = {}) {
+  const scenarios = [{
+    name: `${rulesCount} rules ${indicatorIndexSize} indicator index`,
+    alertInterval: `${alertInterval}m`,
+    alerts: rulesCount,
+    esSpec: '1 x 64 GB',
+    kbSpec: '2 x 8 GB',
+    tmMaxWorkers: 10,
+    tmPollInterval: 3000,
+    version: Version,
+    ruleType: 'indicator',
+    indicatorCount: indicatorCount,
+    searchableSnapshot: false,
+    // trafficRate: 1000,
+    indicatorIndexSize: indicatorIndexSize,
+    // concurrentSearches: 1,
+    // itemsPerSearch: 10000,
+  }]
+
+  return {
+    id: `im-rules-${rulesCount}-indicatorSize-${indicatorIndexSize}-ruleIntervalMinutes-${alertInterval}-indicatorCount-${indicatorCount}`,
+    description: `basic test scenario`,
+    scenarios,
+  }
+}
+

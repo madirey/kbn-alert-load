@@ -22,7 +22,7 @@ for (const command of commands) {
 if (require.main === module) main()
 
 function main() {
-  const { config, minutes, percentFiring, esUrl, kbUrl, scenario, trafficGenerator, trafficGeneratorId, command, commandArgs } = parseArgs()
+  const { config, minutes, percentFiring, esUrl, kbUrl, scenario, trafficGenerator, trafficGeneratorId, command, commandArgs, reportFileName } = parseArgs()
   logger.debug(`cliArguments: ${JSON.stringify({ config, command, commandArgs })}`)
 
   logger.debug(`using config: ${config}`)
@@ -34,7 +34,7 @@ function main() {
   }
  
   try {
-    commandHandler({ config, minutes, percentFiring, esUrl, kbUrl, scenario, trafficGenerator, trafficGeneratorId }, commandArgs)
+    commandHandler({ config, minutes, percentFiring, esUrl, kbUrl, scenario, trafficGenerator, trafficGeneratorId, reportFileName }, commandArgs)
   } catch (err) {
     logger.logErrorAndExit(`error running "${command} ${commandArgs.join(' ')}: ${err}`)
   }
