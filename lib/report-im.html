@@ -119,23 +119,22 @@
 
   const scenarios = Object.keys(ruleStatus);
   const rulesData = scenarios.map((scanarioName) => {
-    const rulesInfo = Object.entries(ruleStatus[scanarioName]).map(
-      ([ruleId, ruleInfo]) => {
+    const rulesInfo = ruleStatus[scanarioName].data.map(
+      ({id:ruleId, ...ruleInfo}) => {
           const events = eventLog.filter(event => event.ruleId === ruleId)
           return {
             ruleId,
             ...ruleInfo,
-            bulk_create_time_durations: ruleInfo.current_status.bulk_create_time_durations[0],
-            search_after_time_durations: ruleInfo.current_status.search_after_time_durations[0],
-            duration: events[events.length - 1].duration
+            bulk_create_time_durations: ruleInfo?.bulk_create_time_durations?.[0],
+            search_after_time_durations: ruleInfo?.search_after_time_durations?.[0],
+            duration: events[events.length - 1]?.duration
           }
       }
     );
     return rulesInfo;
   })[0];
-
   const rulesCount = rulesData.length
-  const succeededRulesCount = rulesData.filter(rule => rule.current_status.status === 'succeeded' || (rule.current_status.status === 'going to run' && rule.current_status.last_success_message === 'succeeded')).length;
+  const succeededRulesCount = rulesData.filter(rule => rule.status === 'succeeded' || (rule.status === 'going to run' && rule.last_success_message === 'succeeded')).length;
   const successRate = Number((succeededRulesCount / rulesCount) *  100).toFixed(2)
 
   const earliestDate = Date.parse(eventLog[0].date)
@@ -158,6 +157,7 @@
           <div> Events: <b>${sameVals.get("indicatorCount")}  </b></div>
           <div> Rule interval: <b>${sameVals.get("alertInterval")}  </b></div>
           <div> Indicator index size: <b>${sameVals.get("indicatorIndexSize")} </b> </div>   
+          <div> Mathched fields count: <b>${sameVals.get("indicatorFieldCount")} </b> </div>   
         </div>
         <div class="rules-status">
           <h3>Execution status (last run)</h3>
