@@ -134,7 +134,10 @@
     return rulesInfo;
   })[0];
   const rulesCount = rulesData.length
-  const succeededRulesCount = rulesData.filter(rule => rule.status === 'succeeded' || (rule.status === 'going to run' && rule.last_success_message === 'succeeded')).length;
+  const succeededRulesCount = rulesData.filter(rule => {
+    const status = rule?.execution_summary?.last_execution?.status || rule.status;
+    return status === 'succeeded' || (status === 'going to run' && rule.last_success_message === 'succeeded')
+  }).length;
   const successRate = Number((succeededRulesCount / rulesCount) *  100).toFixed(2)
 
   const earliestDate = Date.parse(eventLog[0].date)
@@ -155,7 +158,8 @@
         <div class="flex info">
           <div> Rules count: <b>${sameVals.get("alerts")} </b></div>
           <div> Events: <b>${sameVals.get("indicatorCount")}  </b></div>
-          <div> Rule interval: <b>${sameVals.get("alertInterval")}  </b></div>
+          <div> Rule interval: <b>${ sameVals.get("alertInterval")}  </b></div>
+          <div>  ${suite.waitMore ? ` Waiting time: ${suite.waitMore} ` : ''}</div>
           <div> Indicator index size: <b>${sameVals.get("indicatorIndexSize")} </b> </div>   
           <div> Mathched fields count: <b>${sameVals.get("indicatorFieldCount")} </b> </div>   
         </div>

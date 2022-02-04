@@ -23,7 +23,7 @@ if (require.main === module) main()
 
 function main() {
   console.log(parseArgs())
-  const { config, minutes, percentFiring, esUrl, kbUrl, scenario, trafficGenerator, trafficGeneratorId, command, commandArgs, reportFileName, configSequence, outputFolder } = parseArgs()
+  const { config, minutes, percentFiring, esUrl, kbUrl, scenario, trafficGenerator, trafficGeneratorId, command, commandArgs, reportFileName, configSequence, outputFolder, waitMore } = parseArgs()
   logger.debug(`cliArguments: ${JSON.stringify({ config, command, commandArgs })}`)
 
   logger.debug(`using config: ${config}`)
@@ -35,7 +35,7 @@ function main() {
   }
  
   try {
-    commandHandler({ config, minutes, percentFiring, esUrl, kbUrl, scenario, trafficGenerator, trafficGeneratorId, reportFileName, configSequence, outputFolder }, commandArgs)
+    commandHandler({ config, minutes, percentFiring, esUrl, kbUrl, scenario, trafficGenerator, trafficGeneratorId, reportFileName, configSequence, outputFolder, waitMore }, commandArgs)
   } catch (err) {
     logger.logErrorAndExit(`error running "${command} ${commandArgs.join(' ')}: ${err}`)
   }
