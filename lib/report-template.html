@@ -61,7 +61,9 @@
   </div>
   -->
 
+  <div class="viz" id="vis-event-count"></div>
   <div class="viz" id="vis-executions-per-minute"></div>
+  <div class="viz" id="vis-execution-time-vs-event-count"></div>
   <div class="viz" id="vis-execution-time"></div>
   <div class="viz" id="vis-execution-failures-per-minute"></div>
   <div class="viz" id="vis-time-between-alert-executions"></div>
@@ -78,7 +80,7 @@
 
 <script>
   'use strict'
-  const { eventLog, kbStatus, KbTaskManager, esStatus, suite, deployments, ruleStatus } = getAllData()
+  const { eventCounts, eventLog, kbStatus, KbTaskManager, esStatus, suite, deployments, ruleStatus } = getAllData()
   const chartWidth = 200
   const colors = [
     '#00BFB3',
@@ -92,7 +94,9 @@
   document.getElementById('table-shared-settings').innerHTML = getSharedSettings()
   // document.getElementById('table-scenario-settings').innerHTML = getScenarioSettings()
 
-  const earliestDate = Date.parse(eventLog[0].date)
+  const earliestDate = Date.parse(eventLog[0].date);
+  const earliestEvent = Date.parse(eventCounts[0].timestamp);
+  const execTimeVsEventCount = [];
 
   // augment the eventLog
   eventLog.forEach(event => {
@@ -101,12 +105,27 @@
     event.minute = event.dateRelative / 1000 / 60
   })
 
+  // augment eventCounts
+  eventCounts.forEach(eventCount => {
+    eventCount.dateNumber = Date.parse(eventCount.timestamp);
+    eventCount.dateRelative = eventCount.dateNumber - earliestEvent;
+    eventCount.minute = eventCount.dateRelative / 1000 / 60;
+
+    const thisMinuteMin = earliestEvent + eventCount.minute * 1000 * 60;
+    const thisMinuteMax = thisMinuteMin + 1000 * 60;
+    const logsThisMinute = eventLog.filter(
+      (event) => event.dateNumber >= thisMinuteMin && event.dateNumber < thisMinuteMax && event.duration);
+    eventCount.avgDuration = logsThisMinute.reduce((total, event) => total + event.duration, 0) / logsThisMinute.length;
+  });
+
+  console.log(eventCounts);
+
   // augment the kbStatus
   kbStatus.forEach(status => {
     status.dateNumber = Date.parse(status.metrics.last_updated)
     status.dateRelative = status.dateNumber - earliestDate
     status.minute = status.dateRelative / 1000 / 60
-  })
+  });
 
   Object.keys(KbTaskManager)
     .forEach(scenario => {
@@ -123,7 +142,7 @@
           stats.minute = stats.dateRelative / 1000 / 60
         })
       })
-    })
+    });
 
   // augment the esStatus
   esStatus.forEach(status => {
@@ -146,6 +165,36 @@
       event.lastInterval = (event.dateNumber - lastExecution) / 1000 / 60
     }
     lastExecutions.set(key, event.dateNumber)
+  })
+
+  vegaEmbed('#vis-event-count', {
+    $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+    title: 'test-index event count',
+    width: chartWidth,
+    mark: { 
+      type: 'bar', 
+      tooltip: true, 
+      cornerRadiusEnd: 4,
+      color: colors[2],
+    },
+    encoding: {
+      x: {
+        bin: { step: 1 },
+        field: 'minute',
+        type: 'ordinal',
+        title: 'minutes since start',
+      },
+      y: {
+        title: 'event count',
+        aggregate: 'max',
+        field: 'count',
+      },
+      column: {
+        field: 'scenario',
+        header: { title: null },
+      }
+    },
+    data: { values: eventCounts }
   })
 
   vegaEmbed('#vis-execution-time', {
@@ -184,6 +233,37 @@
       }
     },
     data: { values: eventLog }
+  })
+
+  vegaEmbed('#vis-execution-time-vs-event-count', {
+    $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+    title: 'average execution time vs. event count',
+    width: chartWidth,
+    mark: { 
+      type: 'bar', 
+      tooltip: true, 
+      cornerRadiusEnd: 4,
+      color: colors[2],
+    },
+    encoding: {
+      x: {
+        title: 'event count',
+        bin: true,
+        field: 'count',
+      },
+      y: {
+        title: 'avg execution time (milliseconds)',
+        aggregate: 'average',
+        field: 'avgDuration',
+        scale: { zero: true, type: 'log' },
+        axis: { grid: false }
+      },
+      column: {
+        field: 'scenario',
+        header: { title: null },
+      }
+    },
+    data: { values: eventCounts }
   })
 
   vegaEmbed('#vis-time-between-alert-executions', {
@@ -414,7 +494,7 @@
               const pollTimestamp = Date.parse(lastSuccessfulPoll) - earliestSuccessfulPollInScenario
               const lastPoll = allRuntimeStats[allRuntimeStats.length - 1]
               if(lastPoll) {
-                // estimate all polling poing between this poll and the previous measured one
+                // estimate all polling going between this poll and the previous measured one
                 for(
                   let estimatedPoll = lastPoll.pollTimestamp + pollInterval;
                   estimatedPoll < pollTimestamp;
@@ -1026,6 +1106,8 @@
       suite: "%Suite%",
       /** @type { any[] } */
       deployments: ["%Deployments%"],
+      /** @type { any[] } */
+      eventCounts: ["%EventCounts%"],
       /** @type { any[] } */
       eventLog: ["%EventLog%"],
       /** @type { any[] } */

@@ -5,6 +5,7 @@
 
 const Versions = [
   // '7.11.0-SNAPSHOT', unstable
+  '8.1.0-SNAPSHOT',
   '7.12.0',
   '7.11.0',
   '7.10.0',
@@ -41,12 +42,10 @@ suites.push(suiteIndicatorItemsPerSearch(200))
 suites.push(suiteIndicatorConcurrentSearches(200))
 
 
-/** @type { ( fn: (clusterSpecs: [], index: number) => Suite) => Suite[] } */
 function withArrayMap(arrayToMap, fn) {
   return arrayToMap.map((arraySpec, index) => fn(arraySpec, index))
 }
 
-/** @type { () => Suite } */
 function suiteIndicatorItemsPerSearch(rulesCount) {
   // const itemsPerSearchSet = [1000, 5000, 10000, 20000]
   const itemsPerSearchSet = [100, 200, 500, 1000]
