@@ -1,26 +1,313 @@
 {
-  "name": "kbn-alert-load deployment",
+  "name": "",
+  "prune_orphans": true,
+  "metadata": {
+    "system_owned": false,
+    "hidden": false
+  },
   "resources": {
     "elasticsearch": [
       {
-        "region": "gcp-us-west2", 
+        "region": "gcp-us-west2",
         "ref_id": "main-elasticsearch",
         "plan": {
+          "autoscaling_enabled": false,
           "cluster_topology": [
             {
-              "instance_configuration_id": "gcp-io-optimized", 
-              "zone_count": 1, 
+              "zone_count": 2,
+              "elasticsearch": {
+                "system_settings": {
+                  "reindex_whitelist": [],
+                  "http": {
+                    "cors_enabled": false,
+                    "cors_allow_credentials": false,
+                    "cors_max_age": 1728000,
+                    "compression": true
+                  },
+                  "monitoring_history_duration": "3d",
+                  "monitoring_collection_interval": -1,
+                  "destructive_requires_name": false,
+                  "auto_create_index": true,
+                  "use_disk_threshold": true,
+                  "scripting": {
+                    "inline": {
+                      "enabled": true
+                    },
+                    "stored": {
+                      "enabled": true
+                    }
+                  },
+                  "enable_close_index": true
+                }
+              },
+              "instance_configuration_id": "gcp.coordinating.1",
+              "node_roles": [
+                "ingest",
+                "remote_cluster_client"
+              ],
+              "id": "coordinating",
               "size": {
                 "resource": "memory",
-                "value": 65792 
+                "value": 0
+              }
+            },
+            {
+              "zone_count": 1,
+              "elasticsearch": {
+                "system_settings": {
+                  "reindex_whitelist": [],
+                  "http": {
+                    "cors_enabled": false,
+                    "cors_allow_credentials": false,
+                    "cors_max_age": 1728000,
+                    "compression": true
+                  },
+                  "monitoring_history_duration": "3d",
+                  "monitoring_collection_interval": -1,
+                  "destructive_requires_name": false,
+                  "auto_create_index": true,
+                  "use_disk_threshold": true,
+                  "scripting": {
+                    "inline": {
+                      "enabled": true
+                    },
+                    "stored": {
+                      "enabled": true
+                    }
+                  },
+                  "enable_close_index": true
+                },
+                "node_attributes": {
+                  "data": "hot"
+                }
+              },
+              "instance_configuration_id": "gcp.data.highio.1",
+              "node_roles": [
+                "data_hot",
+                "data_content",
+                "master",
+                "ingest",
+                "remote_cluster_client",
+                "transform"
+              ],
+              "id": "hot_content",
+              "size": {
+                "resource": "memory",
+                "value": 65536
+              }
+            },
+            {
+              "zone_count": 2,
+              "elasticsearch": {
+                "system_settings": {
+                  "reindex_whitelist": [],
+                  "http": {
+                    "cors_enabled": false,
+                    "cors_allow_credentials": false,
+                    "cors_max_age": 1728000,
+                    "compression": true
+                  },
+                  "monitoring_history_duration": "3d",
+                  "monitoring_collection_interval": -1,
+                  "destructive_requires_name": false,
+                  "auto_create_index": true,
+                  "use_disk_threshold": true,
+                  "scripting": {
+                    "inline": {
+                      "enabled": true
+                    },
+                    "stored": {
+                      "enabled": true
+                    }
+                  },
+                  "enable_close_index": true
+                },
+                "node_attributes": {
+                  "data": "warm"
+                }
+              },
+              "instance_configuration_id": "gcp.data.highstorage.1",
+              "node_roles": [
+                "data_warm",
+                "remote_cluster_client"
+              ],
+              "id": "warm",
+              "size": {
+                "resource": "memory",
+                "value": 0
+              }
+            },
+            {
+              "zone_count": 1,
+              "elasticsearch": {
+                "system_settings": {
+                  "reindex_whitelist": [],
+                  "http": {
+                    "cors_enabled": false,
+                    "cors_allow_credentials": false,
+                    "cors_max_age": 1728000,
+                    "compression": true
+                  },
+                  "monitoring_history_duration": "3d",
+                  "monitoring_collection_interval": -1,
+                  "destructive_requires_name": false,
+                  "auto_create_index": true,
+                  "use_disk_threshold": true,
+                  "scripting": {
+                    "inline": {
+                      "enabled": true
+                    },
+                    "stored": {
+                      "enabled": true
+                    }
+                  },
+                  "enable_close_index": true
+                },
+                "node_attributes": {
+                  "data": "cold"
+                }
+              },
+              "instance_configuration_id": "gcp.data.highstorage.1",
+              "node_roles": [
+                "data_cold",
+                "remote_cluster_client"
+              ],
+              "id": "cold",
+              "size": {
+                "resource": "memory",
+                "value": 0
+              }
+            },
+            {
+              "zone_count": 1,
+              "elasticsearch": {
+                "system_settings": {
+                  "reindex_whitelist": [],
+                  "http": {
+                    "cors_enabled": false,
+                    "cors_allow_credentials": false,
+                    "cors_max_age": 1728000,
+                    "compression": true
+                  },
+                  "monitoring_history_duration": "3d",
+                  "monitoring_collection_interval": -1,
+                  "destructive_requires_name": false,
+                  "auto_create_index": true,
+                  "use_disk_threshold": true,
+                  "scripting": {
+                    "inline": {
+                      "enabled": true
+                    },
+                    "stored": {
+                      "enabled": true
+                    }
+                  },
+                  "enable_close_index": true
+                },
+                "node_attributes": {
+                  "data": "frozen"
+                }
+              },
+              "instance_configuration_id": "gcp.es.datafrozen.n1.64x10x95",
+              "node_roles": [
+                "data_frozen"
+              ],
+              "id": "frozen",
+              "size": {
+                "resource": "memory",
+                "value": 0
+              }
+            },
+            {
+              "zone_count": 3,
+              "elasticsearch": {
+                "system_settings": {
+                  "reindex_whitelist": [],
+                  "http": {
+                    "cors_enabled": false,
+                    "cors_allow_credentials": false,
+                    "cors_max_age": 1728000,
+                    "compression": true
+                  },
+                  "monitoring_history_duration": "3d",
+                  "monitoring_collection_interval": -1,
+                  "destructive_requires_name": false,
+                  "auto_create_index": true,
+                  "use_disk_threshold": true,
+                  "scripting": {
+                    "inline": {
+                      "enabled": true
+                    },
+                    "stored": {
+                      "enabled": true
+                    }
+                  },
+                  "enable_close_index": true
+                }
+              },
+              "instance_configuration_id": "gcp.master.1",
+              "node_roles": [
+                "master",
+                "remote_cluster_client"
+              ],
+              "id": "master",
+              "size": {
+                "resource": "memory",
+                "value": 0
+              }
+            },
+            {
+              "zone_count": 1,
+              "elasticsearch": {
+                "system_settings": {
+                  "reindex_whitelist": [],
+                  "http": {
+                    "cors_enabled": false,
+                    "cors_allow_credentials": false,
+                    "cors_max_age": 1728000,
+                    "compression": true
+                  },
+                  "monitoring_history_duration": "3d",
+                  "monitoring_collection_interval": -1,
+                  "destructive_requires_name": false,
+                  "auto_create_index": true,
+                  "use_disk_threshold": true,
+                  "scripting": {
+                    "inline": {
+                      "enabled": true
+                    },
+                    "stored": {
+                      "enabled": true
+                    }
+                  },
+                  "enable_close_index": true
+                }
+              },
+              "instance_configuration_id": "gcp.ml.1",
+              "node_roles": [
+                "ml",
+                "remote_cluster_client"
+              ],
+              "id": "ml",
+              "size": {
+                "resource": "memory",
+                "value": 0
               }
             }
           ],
+          "tiebreaker_topology": {
+            "memory_per_node": 1024
+          },
           "elasticsearch": {
-            "version": "8.1.0-SNAPSHOT"
+            "version": "8.1.0"
           },
           "deployment_template": {
-            "id": "gcp-io-optimized" 
+            "id": "gcp-io-optimized"
+          },
+          "transient": {
+            "strategy": {
+              "autodetect": {}
+            }
           }
         }
       }
@@ -28,25 +315,38 @@
     "kibana": [
       {
         "region": "gcp-us-west2",
-        "elasticsearch_cluster_ref_id": "main-elasticsearch",
         "ref_id": "main-kibana",
+        "elasticsearch_cluster_ref_id": "main-elasticsearch",
         "plan": {
           "cluster_topology": [
             {
-              "instance_configuration_id": "gcp-io-optimized",
-              "zone_count": 1, 
+              "instance_configuration_id": "gcp.kibana.1",
+              "zone_count": 1,
+              "kibana": {
+                "system_settings": {},
+                "docker_image": "docker.elastic.co/observability-ci/kibana-cloud:8.1.0-SNAPSHOT-madireyextrathresholdeventtimeline"
+              },
               "size": {
                 "resource": "memory",
-                "value": 16384 
+                "value": 16384
               }
             }
           ],
           "kibana": {
-            "docker_image": "docker.elastic.co/kibana/kibana:8.1.0-SNAPSHOT",
-            "version": "8.1.0-SNAPSHOT"
+            "system_settings": {},
+            "version": "8.1.0",
+            "docker_image": "docker.elastic.co/observability-ci/kibana-cloud:8.1.0-SNAPSHOT-madireyextrathresholdeventtimeline"
+          },
+          "transient": {
+            "strategy": {
+              "autodetect": {}
+            }
           }
         }
       }
-    ]
+    ],
+    "apm": [],
+    "integrations_server": [],
+    "enterprise_search": []
   }
 }
